@@ -1,0 +1,484 @@
+<!doctype html>
+<html lang="en"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="theme-color" content="#f7f6f0"><title>STRESS? SQUISH ME!</title>
+<style>
+:root{--paper:#f7f6f0;--blue:#badcf5;--ink:#2c3e48;--pink:#d96e96;--line:#2c3e482b;--muted:#61717a}*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Arial,'Malgun Gothic',sans-serif}button,input{font:inherit}button{color:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s,transform .15s}button:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid var(--pink);outline-offset:4px}button:disabled{opacity:.55;cursor:wait}button:active:not(:disabled){transform:translateY(1px)}[hidden]{display:none!important}
+#app{max-width:1320px;margin:auto;padding:0 48px}.topbar{height:76px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line)}.brand{font-size:18px;letter-spacing:-.7px;font-weight:700}.sound{font-size:11px;border:1px solid var(--line);border-radius:7px;background:transparent;padding:9px 12px}.sound:hover{background:#e8e9e3}.hero{padding:32px 0 25px}.hero h1{font-family:Impact,Haettenschweiler,'Arial Narrow',Arial,sans-serif;font-size:clamp(54px,7.5vw,108px);font-weight:900;line-height:1;letter-spacing:-.025em;margin:0}.hero h1 span{display:inline-block;color:var(--pink);transform-origin:50% 70%;margin-left:.12em}.hero p{font-size:13px;line-height:1.6;margin:13px 0 0}.hero p span{margin-left:14px;color:var(--muted);font-size:11px}
+.playground{display:grid;grid-template-columns:minmax(280px,.9fr) minmax(0,1.15fr);gap:36px;background:var(--blue);border-radius:14px;padding:26px 30px 24px}.camera-column,.toy-column{min-width:0}.panel-head{height:32px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;font-size:11px;font-weight:bold;letter-spacing:.4px}.number{opacity:.55;font-weight:400;margin-right:6px}.text-button{border:0;border-bottom:1px solid #2c3e4870;padding:0 0 3px;background:transparent;font-size:11px;font-weight:400;letter-spacing:0}.text-button:hover{color:#93476a}.camera-card{background:var(--paper);border:1px solid #6f8fa250;border-radius:9px;overflow:hidden}.camera-top{display:flex;justify-content:space-between;align-items:center;gap:8px;height:33px;padding:0 12px;font-size:10px;border-bottom:1px solid #6f8fa22b}.camera-indicator{display:flex;align-items:center;gap:6px}.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:#89969b}.camera-card[data-phase=tracking] .dot{background:#488d69}.camera-stop{background:none;border:0;text-decoration:underline;padding:3px;font-size:10px}.camera-window{aspect-ratio:4/3;position:relative;background:#e6eef0;display:grid;place-items:center;overflow:hidden}.camera-window video,.camera-window canvas{position:absolute;inset:0;width:100%;height:100%;object-fit:fill}.camera-window video{transform:scaleX(-1)}.camera-placeholder{text-align:center;color:#637f8e;font-size:13px;line-height:1.5}.camera-placeholder svg{display:block;width:95px;height:110px;margin:0 auto 11px;transform:rotate(-9deg)}.camera-placeholder small{display:block;font-size:10px;margin-top:5px}.camera-bottom{padding:12px 14px}.camera-bottom p{font-size:11px;line-height:1.5;min-height:32px;margin:0 0 10px;color:#5c6e76}.meter-label{font-size:9px;display:flex;justify-content:space-between;margin-bottom:6px;letter-spacing:.4px}.meter{height:5px;background:#2c3e4812;overflow:hidden;border-radius:3px}.meter i{display:block;height:100%;width:0;background:var(--pink)}.camera-actions{margin-top:12px;display:flex;gap:9px}.primary{border:1px solid var(--ink);border-radius:7px;padding:12px 19px;background:var(--ink);color:var(--paper);font-size:12px;font-weight:700}.primary:hover:not(:disabled){background:#415966}.camera-actions .primary{width:100%}.status-note{font-size:11px;line-height:1.5;margin:11px 0 0;padding:11px;background:#fff7df;border-radius:6px}.status-note:empty{display:none}.steps{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;list-style:none;padding:0;margin:17px 0 0}.steps li{font-size:10px;line-height:1.45;color:#496777}.step-label{display:flex;gap:5px;align-items:center}.step-number{display:inline-grid;place-content:center;width:17px;height:17px;border-radius:50%;border:1px solid #49677760;font-size:9px;flex-shrink:0}.steps small{display:block;padding-left:22px;font-size:9px;margin-top:3px}.steps li[data-active=true]{color:#203944;font-weight:700}.steps li[data-active=true] .step-number{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.toy-stage{position:relative;height:390px;overflow:hidden;border-radius:8px}#scene{position:absolute;inset:0;touch-action:none;cursor:grab}#scene:active{cursor:grabbing}#scene canvas{display:block;width:100%;height:100%}#renderNote{position:absolute;left:10px;right:10px;top:5px;font-size:10px;text-align:center;pointer-events:none}.toy-caption{display:flex;justify-content:center;align-items:baseline;gap:9px;font-size:11px;margin:2px 0 15px;min-height:16px}.toy-caption b{font-weight:700}.toy-caption span{color:#526e7e}.toy-controls{border-top:1px solid #2c3e4826;padding-top:14px;text-align:center}.manual{border:1px solid #2c3e4875;border-radius:7px;background:transparent;padding:11px 20px;font-size:12px;font-weight:700;touch-action:none;user-select:none}.manual:hover{background:#fff6}.manual[aria-pressed=true]{background:#f5a4c6;transform:translateY(1px)}.keys{font-size:10px;color:#4b6a7b;margin:10px 0 0;line-height:1.5}kbd{font:10px monospace;border-bottom:1px solid;padding:0 2px}.page-footer{display:flex;justify-content:space-between;align-items:start;gap:25px;padding:19px 0 26px;font-size:10px;line-height:1.5;color:var(--muted)}.page-footer p{margin:0}.page-footer details{max-width:420px;text-align:right}.page-footer summary{cursor:pointer;text-decoration:underline;text-underline-offset:3px}.page-footer details p{margin-top:8px}
+.picker{width:min(670px,calc(100% - 28px));max-height:92svh;padding:25px;border:1px solid var(--line);border-radius:14px;background:var(--paper);color:var(--ink)}.picker::backdrop{background:#233c4c77}.picker-top{display:flex;justify-content:space-between;align-items:start;gap:15px}.picker h2{font-size:26px;letter-spacing:-1px;margin:0 0 7px}.picker p{font-size:11px;line-height:1.5;margin:0 0 20px;color:var(--muted)}.close-picker{font-size:21px;border:0;background:transparent;width:28px;height:28px;flex-shrink:0}.character-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.character-option{border:1px solid var(--line);border-radius:9px;padding:13px 5px;background:transparent;display:flex;flex-direction:column;align-items:center;gap:8px;position:relative}.character-option:hover{background:#e8eef0}.character-option[aria-pressed=true]{border-color:var(--ink);background:#e5edf1}.character-option[aria-pressed=true]::after{content:'✓';position:absolute;top:6px;right:8px;font-size:11px}.character-option b{font-size:11px}.character-option small{font-size:9px;margin-top:-4px;color:var(--muted)}.mini{height:65px;width:65px;background:radial-gradient(circle at 32% 22%,#fff9,var(--mini));border-radius:50%;position:relative;isolation:isolate;box-shadow:inset -5px -7px 9px #43336622,0 6px 7px #273b7715;margin:10px 0 0}.mini .eye{position:absolute;left:12px;top:24px;height:22px;width:19px;border-radius:50%;background:#fff}.mini .eye.right{left:36px}.mini .eye::after{content:'';position:absolute;background:#242844;height:10px;width:9px;border-radius:50%;left:5px;top:8px}.mini .smile{position:absolute;left:27px;top:46px;width:12px;height:7px;border:2px solid #6f3661;border-top:0;border-radius:0 0 10px 10px}.mini .ear{position:absolute;left:11px;top:-19px;width:15px;height:34px;border-radius:60%;background:var(--mini);transform:rotate(-15deg);z-index:-1}.mini .ear.second{left:40px;transform:rotate(15deg)}.mini .leaf{position:absolute;background:#4fa578;border-radius:90% 0 90% 0;width:25px;height:13px;left:11px;top:-8px;transform:rotate(18deg)}.mini .leaf.second{left:31px;transform:rotate(85deg)}.mini .antenna{position:absolute;left:12px;top:-13px;border-left:3px solid var(--mini);height:20px;transform:rotate(-20deg)}.mini .antenna::before{content:'';position:absolute;top:-4px;left:-6px;width:10px;height:10px;background:#ef77ac;border-radius:50%}.mini .antenna.second{left:50px;transform:rotate(20deg)}.customize{margin:22px 0 20px;padding-top:17px;border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1.4fr;gap:18px}.customize label,.custom-label{display:block;font-size:10px;margin-bottom:9px;font-weight:bold}.color-control{display:flex;align-items:center;gap:9px}.color-control input{width:43px;height:32px;padding:2px;border:1px solid var(--line);border-radius:5px;background:transparent;cursor:pointer}.color-control span{font:10px monospace}.finish-options{display:flex;gap:7px}.finish-options button{border:1px solid var(--line);border-radius:6px;background:transparent;font-size:10px;padding:9px 12px}.finish-options button[aria-pressed=true]{background:#f4d8e4;border-color:#b87f97}.done-picker{width:100%}
+@media(min-width:1440px){.toy-stage{height:410px}}
+@media(max-width:1000px){#app{padding:0 28px}.hero h1{font-size:8vw}.playground{padding:22px;gap:22px;grid-template-columns:1fr 1fr}.toy-stage{height:330px}.hero p span{display:block;margin-left:0;margin-top:4px}.steps{gap:4px}.steps li{font-size:9px}.steps small{font-size:8px}.toy-caption{flex-direction:column;align-items:center;gap:4px}.camera-placeholder svg{height:85px}}
+@media(max-width:680px){#app{padding:0 18px}.topbar{height:61px}.brand{font-size:16px}.hero{padding:25px 0 22px}.hero h1{font-size:clamp(53px,11.5vw,77px);line-height:.95}.hero h1 span{display:block;margin:3px 0 0}.hero p{font-size:12px;margin-top:12px}.hero p span{font-size:10px}.playground{display:flex;flex-direction:column;gap:24px;padding:18px 15px;border-radius:11px}.panel-head{font-size:10px;height:29px}.text-button{font-size:10px}.camera-window{aspect-ratio:4/3;max-height:280px}.camera-placeholder svg{height:83px;margin-bottom:5px}.camera-placeholder{font-size:12px}.camera-bottom p{font-size:10px;min-height:0}.camera-top{height:30px}.steps{margin-top:13px}.steps li{font-size:10px}.steps small{font-size:9px}.toy-column{border-top:1px solid #2c3e4833;padding-top:18px}.toy-stage{height:300px}.toy-caption{flex-direction:row;gap:8px;margin-bottom:12px}.toy-controls{padding-top:12px}.page-footer{flex-direction:column;gap:10px;padding:16px 0 24px}.page-footer details{text-align:left}.picker{padding:20px}.picker h2{font-size:24px}.character-grid{grid-template-columns:repeat(2,1fr)}.character-option{padding:10px 5px}.customize{grid-template-columns:1fr;gap:15px;margin-top:18px}.finish-options button{padding:10px 15px}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<main id="app">
+ <div class="topbar"><span class="brand">Squish me.</span><button id="sound" class="sound" aria-pressed="false">◖ Sound on</button></div>
+ <header class="hero"><h1>STRESS? <span id="squishType">SQUISH ME!</span></h1><p>Show your hand. Make a fist. Let go.<span lang="ko">손을 보여 주고, 꾹 쥐었다가 펴 보세요.</span></p></header>
+ <section class="playground" aria-label="Your hand controls your squishy">
+  <section class="camera-column" aria-label="Hand camera and instructions">
+   <div class="panel-head"><span><span class="number">01</span> Your hand / 내 손</span><span id="handCue">Camera off</span></div>
+   <div class="camera-card" id="cameraCard" data-phase="off">
+    <div class="camera-top"><span class="camera-indicator"><i class="dot"></i>Live camera</span><button id="stopCamera" class="camera-stop" hidden>Stop camera</button></div>
+    <div class="camera-window"><div id="cameraPlaceholder" class="camera-placeholder"><svg viewBox="0 0 100 120" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M28 69 20 53Q15 43 10 48Q7 51 11 59L24 91Q32 109 52 108Q77 106 79 85L85 41Q86 32 80 32Q75 32 74 40L70 62 72 23Q73 14 67 14Q62 14 61 23L58 57 57 16Q57 7 51 8Q46 8 46 17L46 58 42 25Q41 17 35 19Q30 20 31 28L35 70"/><path d="M36 78Q46 69 60 75M27 95Q48 88 69 96" stroke-opacity=".5"/></svg>Put one hand in the frame.<small lang="ko">한 손을 화면 안에 보여 주세요.</small></div><video id="handVideo" autoplay playsinline muted hidden></video><canvas id="handOverlay" width="640" height="480" hidden></canvas></div>
+    <div class="camera-bottom"><p id="cameraStatus" role="status">Start your camera, then show one open hand.<br>카메라를 켜고 손바닥을 보여 주세요.</p><div class="meter-label"><span>Squeeze / 쥐는 정도</span><span id="squeezeValue">0%</span></div><div class="meter" role="progressbar" id="squeezeProgress" aria-label="Squeeze amount" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="squeezeMeter"></i></div></div>
+   </div>
+   <div class="camera-actions"><button id="startCamera" class="primary">Start camera ↗</button></div><div id="notice" class="status-note" role="status" aria-live="polite"></div>
+   <ol class="steps" aria-label="Hand gestures"><li data-step="0"><span class="step-label"><span class="step-number">1</span> Show your hand</span><small lang="ko">손바닥을 보여 줘요</small></li><li data-step="1"><span class="step-label"><span class="step-number">2</span> Make a fist</span><small lang="ko">주먹을 꾹 쥐어요</small></li><li data-step="2"><span class="step-label"><span class="step-number">3</span> Let go</span><small lang="ko">손을 펴 봐요</small></li></ol>
+  </section>
+  <section class="toy-column" aria-label="Your squishy">
+   <div class="panel-head"><span><span class="number">02</span> Your squish / 스퀴시</span><button class="text-button" id="openPicker" aria-haspopup="dialog">Change character ↗</button></div>
+   <div class="toy-stage"><div id="scene" aria-label="Interactive Pink Jelly with googly eyes. Hold the squish button or Space to squeeze." role="img"></div><p id="renderNote" role="status"></p></div>
+   <div class="toy-caption"><b id="currentCharacter">Pink Jelly</b><span id="expressionCaption">Ready when you are.</span></div>
+   <div class="toy-controls"><button id="hold" class="manual" aria-pressed="false">Hold to squish</button><p class="keys">No camera? Hold the button, the jelly, or <kbd>Space</kbd>.<br><span lang="ko">카메라 없이도 버튼이나 스페이스 키로 놀 수 있어요.</span></p></div>
+  </section>
+ </section>
+ <footer class="page-footer"><p>Your camera stays on your device. / 카메라 영상은 기기에만 남아요.</p><details><summary>Camera help / 카메라 도움말</summary><p>Allow camera access and keep your whole hand in the frame. Internet is needed to load the 3D and hand tracking. If camera access is blocked, open on HTTPS or localhost, or use the squish button.<br><br lang="ko">카메라 권한을 허용하고 손 전체를 화면 안에 보여 주세요. 카메라를 사용할 수 없다면 버튼으로도 놀 수 있어요.</p></details></footer>
+</main>
+<dialog id="characterPicker" class="picker" aria-labelledby="pickerTitle"><div class="picker-top"><div><h2 id="pickerTitle">Choose your squish.</h2><p>Pick a character, then make it your own.<br><span lang="ko">친구를 고르고 색과 촉감을 바꿔 보세요.</span></p></div><button id="closePicker" class="close-picker" aria-label="Close character picker">×</button></div>
+ <div id="characterOptions" class="character-grid" role="group" aria-label="Choose your character">
+  <button class="character-option" data-character="jelly" aria-pressed="true"><span class="mini" style="--mini:#ff88bb" aria-hidden="true"><i class="eye"></i><i class="eye right"></i><i class="smile"></i></span><b>Pink Jelly</b><small lang="ko">핑크 젤리</small></button>
+  <button class="character-option" data-character="bunny" aria-pressed="false"><span class="mini" style="--mini:#ffe8ba" aria-hidden="true"><i class="ear"></i><i class="ear second"></i><i class="eye"></i><i class="eye right"></i><i class="smile"></i></span><b>Bunny Mochi</b><small lang="ko">토끼 모찌</small></button>
+  <button class="character-option" data-character="sprout" aria-pressed="false"><span class="mini" style="--mini:#8de0bc" aria-hidden="true"><i class="leaf"></i><i class="leaf second"></i><i class="eye"></i><i class="eye right"></i><i class="smile"></i></span><b>Mint Sprout</b><small lang="ko">민트 새싹</small></button>
+  <button class="character-option" data-character="alien" aria-pressed="false"><span class="mini" style="--mini:#bb9eff" aria-hidden="true"><i class="antenna"></i><i class="antenna second"></i><i class="eye"></i><i class="eye right"></i><i class="smile"></i></span><b>Lilac Alien</b><small lang="ko">보라 외계인</small></button>
+ </div>
+ <div class="customize"><div><label for="bodyColor">Color / 색상</label><div class="color-control"><input id="bodyColor" type="color" value="#ff88bb"><span id="colorValue">#FF88BB</span></div></div><div><span class="custom-label">Texture / 촉감</span><div id="finishOptions" class="finish-options" role="group" aria-label="Material"><button data-finish="jelly" aria-pressed="true">Jelly / 젤리</button><button data-finish="clay" aria-pressed="false">Soft clay / 클레이</button></div></div></div>
+ <button id="donePicker" class="primary done-picker">Let's squish ↗</button>
+</dialog>
+<!-- One HTML file. The 3D and hand-tracking libraries load from CDNs. -->
+<script>
+/* Camera + MediaPipe adapter. The camera is opened only by calling start().
+   Mirror the <video> with CSS scaleX(-1); leave the overlay canvas untransformed.
+   The caller controls visual state through onState({phase,message}). */
+(function () {
+  'use strict';
+  const VERSION = '0.10.18';
+  const CDN = 'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@' + VERSION;
+  const MODEL = 'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task';
+  const CONNECTIONS = [[0,1],[1,2],[2,3],[3,4],[0,5],[5,6],[6,7],[7,8],[5,9],[9,10],[10,11],[11,12],[9,13],[13,14],[14,15],[15,16],[13,17],[0,17],[17,18],[18,19],[19,20]];
+  const clamp = (v, a = 0, b = 1) => Math.max(a, Math.min(b, v));
+  const distance = (a, b) => Math.hypot(a.x-b.x, a.y-b.y, (a.z || 0)-(b.z || 0));
+
+  // Relative finger lengths make this independent of the hand's on-screen size.
+  // The four fingers drive squeeze strength; the thumb is intentionally optional.
+  window.squishClosureFromLandmarks = function (points) {
+    if (!points || points.length < 21) return 0;
+    let total = 0;
+    for (const base of [5, 9, 13, 17]) {
+      const mcp=points[base], pip=points[base+1], dip=points[base+2], tip=points[base+3];
+      const length=distance(mcp,pip)+distance(pip,dip)+distance(dip,tip);
+      const extension=distance(mcp,tip)/Math.max(length, 0.0001);
+      const wristRatio=distance(points[0],tip)/Math.max(distance(points[0],pip),0.0001);
+      const bent=clamp((0.94-extension)/0.58);
+      const folded=clamp((1.35-wristRatio)/0.62);
+      total += bent*0.55+folded*0.45;
+    }
+    return clamp((total/4-0.04)/0.9);
+  };
+
+  window.createSquishHandTracker = function ({video, canvas, onClosure=()=>{}, onState=()=>{}}) {
+    const ctx=canvas.getContext('2d');
+    let detector=null, detectorPromise=null, media=null, raf=0, generation=0;
+    let running=false, destroyed=false, startPromise=null, lastTime=-1, lastInference=0;
+    let lastHandTime=0, smoothed=0, lastTick=0, lastPhase='';
+
+    function state(phase,message) {
+      if (lastPhase===phase && phase!=='error') return;
+      lastPhase=phase;
+      onState({phase,message});
+    }
+    function clearOverlay(){ctx.clearRect(0,0,canvas.width,canvas.height);}
+    function releaseMedia() {
+      if(media) media.getTracks().forEach(track=>track.stop());
+      media=null;
+      video.srcObject=null;
+    }
+    async function loadDetector() {
+      if(detector) return detector;
+      if(!detectorPromise) detectorPromise=(async()=>{
+        const {FilesetResolver,HandLandmarker}=await import(CDN+'/+esm');
+        const files=await FilesetResolver.forVisionTasks(CDN+'/wasm');
+        const options={baseOptions:{modelAssetPath:MODEL,delegate:'GPU'},runningMode:'VIDEO',numHands:1,minHandDetectionConfidence:0.55,minHandPresenceConfidence:0.55,minTrackingConfidence:0.55};
+        let instance;
+        try {instance=await HandLandmarker.createFromOptions(files,options);}
+        catch {options.baseOptions.delegate='CPU';instance=await HandLandmarker.createFromOptions(files,options);}
+        if(destroyed){instance.close();throw new Error('Tracker was closed');}
+        detector=instance;
+        return detector;
+      })().catch(error=>{detectorPromise=null;throw error;});
+      return detectorPromise;
+    }
+    function drawHand(points) {
+      // Match the video's intrinsic aspect ratio, avoiding skeleton misalignment.
+      const width=video.videoWidth || 640,height=video.videoHeight || 480;
+      if(canvas.width!==width || canvas.height!==height){canvas.width=width;canvas.height=height;}
+      clearOverlay();
+      const xy=p=>[(1-p.x)*canvas.width,p.y*canvas.height];
+      ctx.lineWidth=Math.max(2,canvas.width/220);
+      ctx.lineCap='round';ctx.strokeStyle='#e9ff9c';
+      CONNECTIONS.forEach(([a,b])=>{const p=xy(points[a]),q=xy(points[b]);ctx.beginPath();ctx.moveTo(p[0],p[1]);ctx.lineTo(q[0],q[1]);ctx.stroke();});
+      points.forEach((p,i)=>{const [x,y]=xy(p);ctx.beginPath();ctx.arc(x,y,i===0?6:4,0,Math.PI*2);ctx.fillStyle=[4,8,12,16,20].includes(i)?'#ff579b':'#fff';ctx.fill();});
+    }
+    function tick(now) {
+      if(!running || destroyed)return;
+      const dt=Math.min(.1,Math.max(.001,(now-(lastTick || now-16))/1000));lastTick=now;
+      if(video.readyState>=2 && video.currentTime!==lastTime && now-lastInference>=1000/18){
+        lastTime=video.currentTime;lastInference=now;
+        try {
+          const result=detector.detectForVideo(video,now);
+          const points=result.landmarks && result.landmarks[0];
+          if(points){
+            lastHandTime=now;
+            const target=window.squishClosureFromLandmarks(points);
+            smoothed+=(target-smoothed)*0.48;
+            drawHand(points);
+            state('tracking','Hand found. Close your fist! / 손을 찾았어요. 주먹을 쥐어 보세요!');
+          }else{
+            clearOverlay();
+            state('searching','Show one open palm to the camera. / 카메라에 손바닥을 보여 주세요.');
+          }
+        }catch(error){
+          stop(false);
+          state('error','Tracking paused. Try the camera again. / 카메라를 다시 켜 주세요.');
+          return;
+        }
+      }
+      if(now-lastHandTime>350)smoothed*=Math.exp(-dt*8);
+      onClosure(clamp(smoothed));
+      raf=requestAnimationFrame(tick);
+    }
+    function stop(announce=true){
+      generation++;running=false;
+      // A new camera request may start immediately, even if an older permission
+      // dialog or model load has not completed. Its generation will be ignored.
+      startPromise=null;
+      cancelAnimationFrame(raf);raf=0;
+      releaseMedia();clearOverlay();smoothed=0;onClosure(0);
+      if(announce)state('off','Camera off. Try the squish button. / 카메라가 꺼졌어요. 버튼으로 놀아 보세요.');
+    }
+    async function begin(){
+      if(destroyed)return;
+      const token=++generation;
+      state('loading','Opening camera + loading hand tracking… / 카메라와 손 인식을 준비하는 중…');
+      try{
+        if(!window.isSecureContext || !navigator.mediaDevices?.getUserMedia){
+          throw Object.assign(new Error('secure'),{name:'InsecureContextError'});
+        }
+        const stream=await navigator.mediaDevices.getUserMedia({audio:false,video:{facingMode:'user',width:{ideal:640},height:{ideal:480},frameRate:{ideal:24,max:30}}});
+        if(token!==generation || destroyed){stream.getTracks().forEach(t=>t.stop());return;}
+        media=stream;video.srcObject=media;video.muted=true;video.playsInline=true;
+        await video.play();
+        await loadDetector();
+        if(token!==generation || destroyed)return;
+        running=true;lastTime=-1;lastInference=0;lastHandTime=0;lastTick=0;
+        state('searching','Show one open palm to the camera. / 카메라에 손바닥을 보여 주세요.');
+        raf=requestAnimationFrame(tick);
+      }catch(error){
+        if(token!==generation || destroyed)return;
+        releaseMedia();running=false;onClosure(0);
+        let message='Could not load hand tracking. Check your internet and try again. / 인터넷 연결을 확인하고 다시 시도해 주세요.';
+        if(error.name==='NotAllowedError')message='Camera permission was not granted. Allow it, or use the squish button. / 카메라를 허용하거나 버튼으로 놀아 보세요.';
+        if(error.name==='NotFoundError')message='No camera found. You can still use the squish button. / 카메라가 없어요. 버튼으로 놀아 보세요.';
+        if(error.name==='NotReadableError')message='Camera is busy. Close other camera apps and retry. / 다른 카메라 앱을 닫고 다시 시도해 주세요.';
+        if(error.name==='InsecureContextError')message='Open on HTTPS or localhost for camera access. You can use the button here. / 카메라는 HTTPS 또는 localhost에서 사용하세요.';
+        state('error',message);
+      }
+    }
+    function start(){
+      if(running || destroyed)return Promise.resolve();
+      if(startPromise)return startPromise;
+      const promise=begin().finally(()=>{
+        // A cancelled start must never clear the newer start's lock.
+        if(startPromise===promise)startPromise=null;
+      });
+      startPromise=promise;
+      return promise;
+    }
+    function destroy(){destroyed=true;stop(false);window.removeEventListener('pagehide',onPageHide);if(detector){detector.close();detector=null;}}
+    function onPageHide(){stop();}
+    window.addEventListener('pagehide',onPageHide);
+    return {start,stop,destroy};
+  };
+})();
+
+</script><script>
+// Gentle bubble sounds. No noise samples, rattles, or audio while idle.
+// Call unlock() from a click/key/pointer gesture before using the sound methods.
+(function () {
+  'use strict';
+  const LEVEL = 0.40;
+
+  function soundNotes(kind) {
+    if (kind === 'squeeze') return [
+      {delay:0, duration:.19, peak:.24, pitch:[[0,520],[.035,375],[.13,245],[.19,265]]},
+      {delay:.025, duration:.11, peak:.025, pitch:[[0,1040],[.11,490]]}
+    ];
+    if (kind === 'release') return [
+      {delay:0, duration:.30, peak:.24, pitch:[[0,235],[.045,560],[.13,350],[.22,405],[.30,370]]},
+      {delay:.085, duration:.17, peak:.065, pitch:[[0,690],[.055,510],[.17,620]]}
+    ];
+    return [{delay:0, duration:.13, peak:.15, pitch:[[0,560],[.045,740],[.13,660]]}];
+  }
+
+  function schedule(context, destination, kind, startAt, onVoice) {
+    for (const note of soundNotes(kind)) {
+      const at=startAt+note.delay;
+      const oscillator=context.createOscillator();
+      const envelope=context.createGain();
+      oscillator.type='sine';
+      oscillator.frequency.setValueAtTime(note.pitch[0][1],at);
+      for (let i=1;i<note.pitch.length;i++) {
+        oscillator.frequency.exponentialRampToValueAtTime(note.pitch[i][1],at+note.pitch[i][0]);
+      }
+      envelope.gain.setValueAtTime(.0001,at);
+      envelope.gain.exponentialRampToValueAtTime(note.peak,at+.012);
+      envelope.gain.exponentialRampToValueAtTime(note.peak*.48,at+note.duration*.40);
+      envelope.gain.exponentialRampToValueAtTime(.0001,at+note.duration);
+      oscillator.connect(envelope).connect(destination);
+      const voice={oscillator,envelope,endsAt:at+note.duration+.015};
+      onVoice?.(voice);
+      oscillator.start(at);
+      oscillator.stop(voice.endsAt);
+    }
+  }
+
+  function outputGraph(context) {
+    const master=context.createGain();
+    const lowpass=context.createBiquadFilter();
+    lowpass.type='lowpass';lowpass.frequency.value=1800;lowpass.Q.value=.5;
+    const limiter=context.createDynamicsCompressor();
+    limiter.threshold.value=-15;limiter.knee.value=12;limiter.ratio.value=4;
+    limiter.attack.value=.003;limiter.release.value=.12;
+    master.gain.value=LEVEL;
+    master.connect(lowpass).connect(limiter).connect(context.destination);
+    return master;
+  }
+
+  window.createCuteSquishAudio = function () {
+    let context=null,master=null,muted=false,destroyed=false;
+    const active=new Set();
+    const last={squeeze:-Infinity,release:-Infinity,select:-Infinity};
+    const intervals={squeeze:.22,release:.25,select:.12};
+
+    async function unlock() {
+      if (destroyed) return;
+      try {
+        if (!context) {
+          const Context=window.AudioContext||window.webkitAudioContext;
+          if (!Context) return;
+          context=new Context();master=outputGraph(context);
+          master.gain.value=muted?0:LEVEL;
+        }
+        if (context.state==='suspended') await context.resume();
+      } catch (_) { /* The toy remains playable when audio is unavailable. */ }
+    }
+
+    function cancelVoices() {
+      if (!context) return;
+      const now=context.currentTime;
+      for (const voice of active) {
+        voice.envelope.gain.cancelScheduledValues(now);
+        voice.envelope.gain.setTargetAtTime(.0001,now,.004);
+        try {voice.oscillator.stop(now+.02);} catch (_) {}
+      }
+    }
+
+    function setMuted(value) {
+      muted=Boolean(value);
+      if (!context||!master) return;
+      const now=context.currentTime;
+      master.gain.cancelScheduledValues(now);
+      master.gain.setTargetAtTime(muted?0:LEVEL,now,.006);
+      if (muted) cancelVoices();
+    }
+
+    function play(kind) {
+      if (destroyed||muted||!context||context.state!=='running') return;
+      const now=context.currentTime;
+      if (now-last[kind]<intervals[kind]) return;
+      last[kind]=now;
+      schedule(context,master,kind,now+.004,voice=>{
+        active.add(voice);
+        voice.oscillator.onended=()=>{
+          active.delete(voice);
+          voice.oscillator.disconnect();voice.envelope.disconnect();
+        };
+      });
+    }
+
+    function destroy() {
+      if (destroyed) return;
+      destroyed=true;cancelVoices();
+      if (context&&context.state!=='closed') return context.close().catch(()=>{});
+    }
+
+    return {unlock,setMuted,squeeze:()=>play('squeeze'),release:()=>play('release'),select:()=>play('select'),destroy};
+  };
+
+  // Optional QA helper: creates a real offline AudioBuffer without playing it.
+  window.renderCuteSquishSample = async function (kind='release') {
+    const Offline=window.OfflineAudioContext||window.webkitOfflineAudioContext;
+    if (!Offline) return null;
+    const context=new Offline(1,Math.ceil(44100*.55),44100);
+    const master=outputGraph(context);
+    schedule(context,master,kind,.03);
+    return context.startRendering();
+  };
+})();
+
+</script><script>
+// Character design, input, spring physics, and soft bubble sounds.
+(() => {
+ const $ = id => document.getElementById(id);
+ const clamp = (v,a,b) => Math.max(a,Math.min(b,v));
+ const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+ if(reduced)document.body.classList.add('reduced-motion');
+ const characters={jelly:{name:'Pink Jelly',color:'#ff88bb',finish:'jelly'},bunny:{name:'Bunny Mochi',color:'#ffe8ba',finish:'clay'},sprout:{name:'Mint Sprout',color:'#8de0bc',finish:'jelly'},alien:{name:'Lilac Alien',color:'#bb9eff',finish:'jelly'}};
+ const design={id:'jelly',...characters.jelly};
+ const state = {design,q:0,v:0,target:0,hand:0,manual:false,hop:0,hopV:0,eyeX:0,eyeY:0,eyeVX:0,eyeVY:0,time:0,squeezes:0};
+ let renderer=null, renderFailed=false, last=performance.now(),charged=false,compressionSound=false,muted=false,holdingPointer=null,keyboardHeld=false;
+ const sound=window.createCuteSquishAudio();
+ const sources=new Set();
+ function syncManual(){state.manual=sources.size>0;$('hold').setAttribute('aria-pressed',String(state.manual));}
+ function begin(source){sources.add(source);syncManual();unlockAudio();}
+ function end(source){sources.delete(source);syncManual();}
+ function unlockAudio(){sound.unlock();}
+ $('sound').onclick=()=>{muted=!muted;unlockAudio();sound.setMuted(muted);$('sound').textContent=muted?'◖ Sound off':'◖ Sound on';$('sound').setAttribute('aria-pressed',String(muted));if(!muted)sound.select();};
+ function pointerBegin(e){if(e.button!==undefined&&e.button!==0)return;e.preventDefault();holdingPointer=e.pointerId;e.currentTarget.setPointerCapture?.(e.pointerId);begin('pointer');}
+ function pointerEnd(e){if(holdingPointer!==null&&(e.pointerId===holdingPointer||e.type==='lostpointercapture')){holdingPointer=null;end('pointer');}}
+ for(const el of [$('hold'),$('scene')]){el.addEventListener('pointerdown',pointerBegin);for(const event of ['pointerup','pointercancel','lostpointercapture'])el.addEventListener(event,pointerEnd);}
+ $('hold').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();begin('enter');}});$('hold').addEventListener('keyup',e=>{if(e.key==='Enter')end('enter');});
+ window.addEventListener('keydown',e=>{if($('characterPicker').open||e.code!=='Space'||e.repeat||/INPUT|TEXTAREA|SELECT/.test(e.target.tagName)||(e.target.tagName==='BUTTON'&&e.target!==$('hold'))||e.target.closest('summary'))return;e.preventDefault();keyboardHeld=true;begin('space');});
+ window.addEventListener('keyup',e=>{if(e.code==='Space'&&keyboardHeld){e.preventDefault();keyboardHeld=false;end('space');}});
+ window.addEventListener('blur',()=>{sources.clear();keyboardHeld=false;holdingPointer=null;syncManual();});
+ function syncDesign(){document.querySelectorAll('[data-character]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.character===design.id)));document.querySelectorAll('[data-finish]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.finish===design.finish)));$('bodyColor').value=design.color;$('colorValue').textContent=design.color.toUpperCase();$('currentCharacter').textContent=design.name;$('scene').setAttribute('aria-label',`Interactive ${design.name} with googly eyes. Hold the squish button or Space to squeeze.`);}
+ $('openPicker').onclick=()=>{sources.clear();syncManual();unlockAudio();$('characterPicker').showModal();};
+ $('closePicker').onclick=$('donePicker').onclick=()=>{$('characterPicker').close();$('openPicker').focus();};
+ $('characterOptions').onclick=e=>{const b=e.target.closest('[data-character]');if(!b)return;Object.assign(design,{id:b.dataset.character},characters[b.dataset.character]);syncDesign();sound.select();state.hopV=1.8;state.eyeVX+=2;};
+ $('bodyColor').addEventListener('input',e=>{design.color=e.target.value;syncDesign();});
+ $('finishOptions').onclick=e=>{const b=e.target.closest('[data-finish]');if(!b)return;design.finish=b.dataset.finish;syncDesign();sound.select();};
+ let tracker=null;
+ function cameraState(info){$('cameraCard').dataset.phase=info.phase;const loading=info.phase==='loading',active=['tracking','searching'].includes(info.phase);$('cameraStatus').textContent=info.phase==='error'?'Camera unavailable. You can still use the squish button. / 버튼으로도 놀 수 있어요.':info.message;$('startCamera').disabled=loading;$('startCamera').textContent=loading?'Loading camera…':active?'Camera is on ✓':'Start camera ↗';$('stopCamera').hidden=!(active||loading);$('handVideo').hidden=!active;$('handOverlay').hidden=!active;$('cameraPlaceholder').hidden=active;if(info.phase==='error'){$('notice').textContent=info.message;state.hand=0;}else if(info.phase!=='loading')$('notice').textContent='';if(info.phase==='off')state.hand=0;}
+ $('startCamera').onclick=async()=>{unlockAudio();if(['tracking','searching','loading'].includes($('cameraCard').dataset.phase))return;try{tracker ||= window.createSquishHandTracker({video:$('handVideo'),canvas:$('handOverlay'),onClosure:value=>state.hand=value,onState:cameraState});await tracker.start();}catch(error){cameraState({phase:'error',message:'Could not start hand tracking. Try again, or use mouse / Space.'});}};
+ $('stopCamera').onclick=()=>tracker?.stop();
+ document.addEventListener('visibilitychange',()=>{if(document.hidden){sources.clear();syncManual();tracker?.stop();}});
+ window.addEventListener('pagehide',()=>{tracker?.destroy();sound.destroy();});
+ // Offline-friendly 2D preview while the real 3D scene loads, and as a fallback.
+ const fallback=document.createElement('canvas');$('scene').appendChild(fallback);const c=fallback.getContext('2d');
+ function drawFallback(s){
+  const width=$('scene').clientWidth,height=$('scene').clientHeight,dpr=Math.min(devicePixelRatio||1,1.6);
+  if(fallback.width!==Math.round(width*dpr)||fallback.height!==Math.round(height*dpr)){fallback.width=Math.round(width*dpr);fallback.height=Math.round(height*dpr);}
+  c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,width,height);
+  const size={jelly:1,bunny:.8,sprout:.94,alien:.88}[s.design?.id]||1;
+  const r=Math.min(width*.25,height*.29,140)*size,x=width*.5,rx=r*(1+s.q*.55),ry=r*(1-s.q*.55),y=height*.84-ry-s.hop*(reduced?20:height*.19);
+  const look=s.design||{id:'jelly',color:'#ff88bb',finish:'jelly'},color=look.color,glossy=look.finish!=='clay';
+  const mix=(hex,target,amount)=>{const a=parseInt(hex.slice(1),16),b=parseInt(target.slice(1),16);return '#'+[16,8,0].map(shift=>Math.round(((a>>shift)&255)*(1-amount)+((b>>shift)&255)*amount).toString(16).padStart(2,'0')).join('');};
+  c.fillStyle='#546f9b22';c.beginPath();c.ellipse(x,height*.84,rx*.95,10,0,0,Math.PI*2);c.fill();
+  // Accessories are behind the round body and follow its squash.
+  if(look.id==='bunny'){
+   for(const sign of [-1,1]){
+    const ex=x+sign*rx*.37,ey=y-ry*.86-r*.22,tilt=sign*(.13+s.q*.32),earHeight=r*(.52-s.q*.08);
+    c.fillStyle=mix(color,'#ffffff',.08);c.beginPath();c.ellipse(ex,ey,r*.20,earHeight,tilt,0,Math.PI*2);c.fill();
+    c.fillStyle=mix(color,'#ee8daa',.48);c.beginPath();c.ellipse(ex,ey-r*.03,r*.08,earHeight*.69,tilt,0,Math.PI*2);c.fill();
+   }
+  }else if(look.id==='sprout'){
+   const tipY=y-ry-r*.17;
+   c.strokeStyle='#488f66';c.lineWidth=Math.max(3,r*.045);c.lineCap='round';c.beginPath();c.moveTo(x,y-ry*.85);c.quadraticCurveTo(x-r*.04,tipY+r*.06,x,tipY-r*.07);c.stroke();
+   for(const sign of [-1,1]){c.fillStyle=sign<0?'#71c88b':'#439e70';c.beginPath();c.ellipse(x+sign*r*.19,tipY-r*.035,r*.26,r*.11,sign*.45,0,Math.PI*2);c.fill();}
+  }else if(look.id==='alien'){
+   c.strokeStyle=mix(color,'#273b77',.2);c.lineWidth=Math.max(3,r*.04);c.lineCap='round';
+   for(const sign of [-1,1]){const endX=x+sign*rx*.55,endY=y-ry-r*.22;c.beginPath();c.moveTo(x+sign*rx*.29,y-ry*.82);c.quadraticCurveTo(endX,y-ry-r*.04,endX,endY);c.stroke();c.fillStyle=mix(color,'#ffffff',.15);c.beginPath();c.arc(endX,endY,r*.105,0,Math.PI*2);c.fill();}
+  }
+  const gradient=c.createRadialGradient(x-rx*.3,y-ry*.4,10,x,y,rx);
+  gradient.addColorStop(0,mix(color,'#ffffff',glossy?.69:.30)+(glossy?'e0':'ff'));
+  gradient.addColorStop(.5,mix(color,'#ffffff',glossy?.16:.08)+(glossy?'cd':'ff'));
+  gradient.addColorStop(1,mix(color,'#823c73',glossy?.16:.08)+(glossy?'df':'ff'));
+  c.fillStyle=gradient;c.beginPath();c.ellipse(x,y,rx,ry,0,0,Math.PI*2);c.fill();
+  if(glossy){c.strokeStyle='#ffffffaa';c.lineWidth=4;c.beginPath();c.ellipse(x-rx*.28,y-ry*.37,rx*.28,ry*.13,-.5,Math.PI,2*Math.PI);c.stroke();}
+  const raw=clamp((s.q-.12)/.81,0,1),squeezeFace=raw*raw*(3-2*raw),releaseFace=clamp(Math.max(0,s.hop)*2.2+Math.max(0,s.hopV)*.1,0,1),surprise=Math.max(squeezeFace,releaseFace*.72);
+  for(const sign of [-1,1]){
+   const ex=x+sign*rx*.32,ey=y-ry*.05,er=r*(.25+s.q*.07+surprise*.025);
+   c.fillStyle='#fffdf9';c.beginPath();c.arc(ex,ey,er,0,7);c.fill();
+   c.fillStyle='#26233b';c.beginPath();c.arc(ex+s.eyeX*r*.15,ey+s.eyeY*r*.15,er*.46*(1-surprise*.18),0,7);c.fill();
+   c.fillStyle='white';c.beginPath();c.arc(ex-3+s.eyeX*r*.15,ey-4+s.eyeY*r*.15,er*.13,0,7);c.fill();
+   c.strokeStyle=mix(color,'#3b294b',.58);c.lineWidth=Math.max(2,r*.025);c.lineCap='round';const browY=ey-er-r*(.08+surprise*.1);c.beginPath();c.moveTo(ex-r*.1,browY+sign*surprise*r*.03);c.quadraticCurveTo(ex,browY-r*.04,ex+r*.1,browY-sign*surprise*r*.03);c.stroke();
+  }
+  c.strokeStyle=mix(color,'#3b294b',.58);c.lineWidth=Math.max(2,r*.027);c.lineCap='round';const my=y+ry*.26;c.beginPath();for(let i=0;i<=30;i++){const a=i/30,smileX=(a*2-1)*r*.16,smileY=Math.sin(a*Math.PI)*r*.10,roundX=Math.sin(a*Math.PI*2)*r*.07,roundY=(Math.cos(a*Math.PI*2)*r*.09)+r*.03;const px=x+smileX*(1-surprise)+roundX*surprise,py=my+smileY*(1-surprise)+roundY*surprise;if(i===0)c.moveTo(px,py);else c.lineTo(px,py);}c.stroke();
+ }
+ let frameId=0;
+ function frame(now){const dt=Math.min((now-last)/1000,.035);last=now;state.time=now/1000;state.target=$('characterPicker').open?0:(state.manual?1:state.hand);
+ if(state.target>.4&&!compressionSound){compressionSound=true;sound.squeeze();}if(state.target<.15)compressionSound=false;
+ if(state.q>.68&&state.target>.6)charged=true;if(charged&&state.target<.25){charged=false;state.hopV=3.5;state.v-=2;state.eyeVY-=5;state.eyeVX+=(Math.random()-.5)*4;state.squeezes++;sound.release();}
+ const steps=3,h=dt/steps;
+ for(let n=0;n<steps;n++){state.v+=(100*(state.target-state.q)-11*state.v)*h;state.q=clamp(state.q+state.v*h,-.24,1.1);state.hopV+=(-22*state.hop-6*state.hopV)*h;state.hop=Math.max(-.03,state.hop+state.hopV*h);state.eyeVX+=(-45*state.eyeX-4.5*state.eyeVX+state.v*4)*h;state.eyeVY+=(-43*(state.eyeY-.15)-4*state.eyeVY-state.v*5)*h;state.eyeX=clamp(state.eyeX+state.eyeVX*h,-.7,.7);state.eyeY=clamp(state.eyeY+state.eyeVY*h,-.6,.75);}
+ $('squishType').style.transform=`scale(${1+state.q*.02},${1-state.q*.07})`;
+ const percent=Math.round(clamp(state.q,0,1)*100);$('squeezeMeter').style.width=percent+'%';$('squeezeValue').textContent=percent+'%';$('squeezeProgress').setAttribute('aria-valuenow',String(percent));
+ const phase=$('cameraCard').dataset.phase,active=phase==='tracking';$('handCue').textContent=active?(state.hand>.65?'Fist detected':state.hand>.18?'Keep squeezing':'Hand detected'):phase==='searching'?'Show your hand':phase==='loading'?'Loading…':phase==='error'?'Camera unavailable':'Camera off';
+ const release=state.hop>.12,step=release?2:state.target>.3?1:0;document.querySelectorAll('[data-step]').forEach(el=>el.dataset.active=String((active||state.manual||release)&&Number(el.dataset.step)===step));$('expressionCaption').textContent=release?'And… relax.':state.q>.55?'Ooo!':state.q>.15?'A little more…':'Ready when you are.';
+ if(renderer)renderer.update(state,reduced);else drawFallback(state);frameId=requestAnimationFrame(frame);}
+ frameId=requestAnimationFrame(frame);
+ window.SquishToy={state,setRenderer(newRenderer){renderer=newRenderer;fallback.remove();$('renderNote').textContent='';},renderError(){renderFailed=true; $('renderNote').textContent='Simple preview mode. Camera & squish still work.';},get reducedMotion(){return reduced;}};
+ // Avoid a blank toy if a library CDN cannot be reached.
+ setTimeout(()=>{if(!renderer&&!renderFailed)$('renderNote').textContent='Loading 3D… You can already squish the preview.';},8000);
+})();
+
+</script><script type="module">
+// Real 3D geometry, translucent physical material, and independent googly eyes.
+try {
+ const THREE = await import('https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js');
+ const host=document.getElementById('scene');
+ const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,powerPreference:'high-performance'});
+ renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.7));renderer.setClearColor(0xbadcf5,1);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.25;renderer.shadowMap.enabled=true;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+ const scene=new THREE.Scene();scene.background=new THREE.Color(0xbadcf5);scene.fog=new THREE.Fog(0xbadcf5,12,30);
+ const camera=new THREE.PerspectiveCamera(34,1,.1,60);camera.position.set(0,3.4,10.6);camera.lookAt(0,1.8,0);
+ scene.add(new THREE.HemisphereLight(0xffffff,0x809ed8,3));const key=new THREE.DirectionalLight(0xfff6ed,5);key.position.set(-4,7,6);key.castShadow=true;key.shadow.mapSize.set(1024,1024);key.shadow.camera.left=-5;key.shadow.camera.right=5;key.shadow.camera.top=7;key.shadow.camera.bottom=-4;key.shadow.normalBias=.03;key.shadow.bias=-.0002;key.shadow.radius=5;scene.add(key);const rim=new THREE.DirectionalLight(0xffc4e2,3);rim.position.set(4,4,-3);scene.add(rim);
+ // A small procedural light studio supplies reflections without image assets.
+ const studio=new THREE.Scene();studio.background=new THREE.Color(0xb8cce7);
+ const panelGeo=new THREE.PlaneGeometry(5,8);for(const [x,y,z,rotation,intensity] of [[-4,3,3,.7,6],[4,4,0,-1.3,3],[0,7,-2,0,4]]){const panel=new THREE.Mesh(panelGeo,new THREE.MeshBasicMaterial({color:new THREE.Color().setScalar(intensity),side:THREE.DoubleSide}));panel.position.set(x,y,z);panel.rotation.y=rotation;panel.lookAt(0,1,0);studio.add(panel);}
+ const pmrem=new THREE.PMREMGenerator(renderer);const environment=pmrem.fromScene(studio,.03);scene.environment=environment.texture;pmrem.dispose();
+ const floor=new THREE.Mesh(new THREE.PlaneGeometry(200,200),new THREE.MeshStandardMaterial({color:0xbadcf5,roughness:1}));floor.rotation.x=-Math.PI/2;floor.receiveShadow=true;scene.add(floor);
+ // Soft contact shadow: radial texture painted locally.
+ const shadowCanvas=document.createElement('canvas');shadowCanvas.width=shadowCanvas.height=128;const sc=shadowCanvas.getContext('2d'),g=sc.createRadialGradient(64,64,0,64,64,64);g.addColorStop(0,'rgba(48,67,119,.32)');g.addColorStop(.6,'rgba(48,67,119,.12)');g.addColorStop(1,'rgba(48,67,119,0)');sc.fillStyle=g;sc.fillRect(0,0,128,128);const shadow=new THREE.Mesh(new THREE.PlaneGeometry(4.5,3.6),new THREE.MeshBasicMaterial({map:new THREE.CanvasTexture(shadowCanvas),transparent:true,depthWrite:false}));shadow.rotation.x=-Math.PI/2;shadow.position.y=.012;scene.add(shadow);
+ const toy=new THREE.Group();scene.add(toy);
+ const geometry=new THREE.SphereGeometry(1.15,72,56);const original=geometry.attributes.position.array.slice();
+ const jelly=new THREE.Mesh(geometry,new THREE.MeshPhysicalMaterial({color:0xff88bb,metalness:0,roughness:.17,transmission:.70,thickness:1.9,ior:1.36,clearcoat:1,clearcoatRoughness:.12,attenuationColor:new THREE.Color(0xf598c5),attenuationDistance:3,envMapIntensity:1.3}));jelly.castShadow=true;toy.add(jelly);
+ // Inner bubbles remain visible through the pink jelly.
+ const bubbles=new THREE.Group();const bubbleMat=new THREE.MeshPhysicalMaterial({color:0xffd6e9,roughness:.1,transparent:true,opacity:.38,transmission:.4,depthWrite:false});for(let i=0;i<12;i++){const b=new THREE.Mesh(new THREE.SphereGeometry(.035+(i%3)*.016,12,8),bubbleMat);b.position.set(Math.sin(i*2.4)*.65,Math.cos(i*1.7)*.7,-.3+Math.sin(i*1.4)*.5);bubbles.add(b);}toy.add(bubbles);
+ const eyes=[];
+ for(const sign of [-1,1]){const eye=new THREE.Group();const white=new THREE.Mesh(new THREE.SphereGeometry(.33,40,32),new THREE.MeshStandardMaterial({color:0xfffef7,roughness:.32}));white.scale.set(1,1,.62);eye.add(white);const pupil=new THREE.Mesh(new THREE.SphereGeometry(.147,32,24),new THREE.MeshStandardMaterial({color:0x17182a,roughness:.22}));pupil.position.z=.19;pupil.scale.z=.35;eye.add(pupil);const sparkle=new THREE.Mesh(new THREE.SphereGeometry(.045,16,12),new THREE.MeshBasicMaterial({color:0xffffff}));sparkle.position.set(-.04,.045,.044);pupil.add(sparkle);const glass=new THREE.Mesh(new THREE.SphereGeometry(.345,40,32),new THREE.MeshPhysicalMaterial({color:0xffffff,transmission:1,roughness:.09,thickness:.055,ior:1.35,clearcoat:1,transparent:true,opacity:.23,depthWrite:false}));glass.scale.z=.68;eye.add(glass);eye.position.set(sign*.44,.21,1.02);eye.rotation.y=sign*.10;toy.add(eye);eyes.push({eye,pupil,sign});}
+ // The same tube gently morphs from a smile to an "o"; no geometry is rebuilt per frame.
+ const smileCurve=new THREE.CatmullRomCurve3([new THREE.Vector3(-.16,-.23,1.105),new THREE.Vector3(-.10,-.34,1.12),new THREE.Vector3(0,-.37,1.13),new THREE.Vector3(.1,-.34,1.12),new THREE.Vector3(.16,-.23,1.105)]);
+ class SurprisedMouthCurve extends THREE.Curve {getPoint(t,target=new THREE.Vector3()){const angle=Math.PI/2+t*Math.PI*2;return target.set(Math.cos(angle)*.095,-.29+Math.sin(angle)*.12,1.14);}}
+ const mouthGeometry=new THREE.TubeGeometry(smileCurve,24,.026,8,false),surprisedGeometry=new THREE.TubeGeometry(new SurprisedMouthCurve(),24,.026,8,false);
+ mouthGeometry.morphAttributes.position=[surprisedGeometry.attributes.position];mouthGeometry.morphAttributes.normal=[surprisedGeometry.attributes.normal];
+ const faceMaterial=new THREE.MeshStandardMaterial({color:0x8f365d,roughness:.5});
+ const mouth=new THREE.Mesh(mouthGeometry,faceMaterial);toy.add(mouth);
+ const brows=[];const browCurve=new THREE.CatmullRomCurve3([new THREE.Vector3(-.12,0,0),new THREE.Vector3(0,.035,.005),new THREE.Vector3(.12,0,0)]),browGeometry=new THREE.TubeGeometry(browCurve,12,.019,7,false);
+ for(const sign of [-1,1]){const brow=new THREE.Mesh(browGeometry,faceMaterial);toy.add(brow);brows.push({brow,sign});}
+ // Cheeks are little translucent pink patches rather than additional limbs.
+ const cheekMat=new THREE.MeshBasicMaterial({color:0xff72ac,transparent:true,opacity:.35,depthWrite:false});const cheeks=[];for(const sign of [-1,1]){const cheek=new THREE.Mesh(new THREE.SphereGeometry(.14,20,16),cheekMat);cheek.scale.set(1,.5,.1);cheek.position.set(sign*.69,-.14,.92);toy.add(cheek);cheeks.push(cheek);}
+ // All four characters share the squishy ball, with different little features.
+ const accessories={bunny:new THREE.Group(),sprout:new THREE.Group(),alien:new THREE.Group()};
+ for(const group of Object.values(accessories))toy.add(group);
+ const earMaterial=jelly.material;
+ for(const sign of [-1,1]){const ear=new THREE.Mesh(new THREE.SphereGeometry(.23,28,24),earMaterial);ear.scale.set(.8,2,.7);ear.position.set(sign*.4,.30,0);ear.rotation.z=sign*-.18;ear.castShadow=true;accessories.bunny.add(ear);const inside=new THREE.Mesh(new THREE.SphereGeometry(.125,20,16),new THREE.MeshStandardMaterial({color:0xf4aec4,roughness:.55}));inside.scale.set(.65,2.4,.24);inside.position.set(sign*.4,.35,.15);inside.rotation.z=sign*-.18;accessories.bunny.add(inside);}
+ const leafMaterial=new THREE.MeshPhysicalMaterial({color:0x49a475,roughness:.4,clearcoat:.3});
+ for(const sign of [-1,1]){const leaf=new THREE.Mesh(new THREE.SphereGeometry(.31,28,18),leafMaterial);leaf.scale.set(1.25,.32,.62);leaf.position.set(sign*.24,.16,0);leaf.rotation.z=sign*.4;leaf.castShadow=true;accessories.sprout.add(leaf);}
+ const stem=new THREE.Mesh(new THREE.CylinderGeometry(.032,.04,.29,12),leafMaterial);stem.position.y=.03;accessories.sprout.add(stem);
+ for(const sign of [-1,1]){const stalk=new THREE.Mesh(new THREE.CylinderGeometry(.034,.04,.48,12),earMaterial);stalk.position.set(sign*.5,.18,0);stalk.rotation.z=sign*-.25;accessories.alien.add(stalk);const tip=new THREE.Mesh(new THREE.SphereGeometry(.13,24,18),new THREE.MeshPhysicalMaterial({color:0xff91c2,roughness:.25,clearcoat:.8}));tip.position.set(sign*.56,.43,0);tip.castShadow=true;accessories.alien.add(tip);}
+ let lastDesign='';
+ function applyDesign(design){const key=design.id+design.color+design.finish;if(key===lastDesign)return;lastDesign=key;jelly.material.color.set(design.color);jelly.material.attenuationColor.set(design.color);const isJelly=design.finish==='jelly';jelly.material.transmission=isJelly?.70:0;jelly.material.roughness=isJelly?.17:.68;jelly.material.clearcoat=isJelly?1:.12;jelly.material.attenuationDistance=isJelly?3:1;jelly.material.needsUpdate=true;bubbles.visible=isJelly;for(const [id,group] of Object.entries(accessories))group.visible=id===design.id;}
+ // This canvas occupies the toy pane rather than the whole browser viewport.
+ function resize(){const w=Math.max(1,host.clientWidth),h=Math.max(1,host.clientHeight);renderer.setSize(w,h);camera.aspect=w/h;camera.fov=32;const visibleHeight=Math.max(3.65,4.3/camera.aspect),distance=visibleHeight/(2*Math.tan(THREE.MathUtils.degToRad(camera.fov/2)));camera.position.set(0,2.5,distance);camera.lookAt(0,1.25,0);camera.updateProjectionMatrix();}window.addEventListener('resize',resize);const resizeObserver=new ResizeObserver(resize);resizeObserver.observe(host);resize();
+ function update(s,reduced){applyDesign(s.design);const q=THREE.MathUtils.clamp(s.q,-.22,1.05),t=s.time,wobble=reduced?.25:1;const sx=1+q*.60,sy=1-q*.64,sz=1+q*.25;const p=geometry.attributes.position;
+ for(let i=0;i<p.count;i++){const x=original[i*3],y=original[i*3+1],z=original[i*3+2];const wob=Math.sin(y*5+t*8)*Math.sin(z*4+x*3)*(.009+Math.abs(s.v)*.005)*wobble;p.setXYZ(i,x*sx*(1+wob),y*sy,z*sz*(1+wob));}p.needsUpdate=true;geometry.computeVertexNormals();
+ const squeezeFace=THREE.MathUtils.smoothstep(Math.max(0,q),.12,.93),releaseFace=THREE.MathUtils.clamp(Math.max(0,s.hop)*2.2+Math.max(0,s.hopV)*.10,0,1),surprise=Math.max(squeezeFace,releaseFace*.72);
+ const size={jelly:1,bunny:.80,sprout:.94,alien:.88}[s.design.id]||1;toy.scale.setScalar(size);toy.position.x=0;toy.position.y=1.15*sy*size+.07+Math.max(0,s.hop)*(reduced?.35:1.15);toy.rotation.z=Math.sin(t*8)*s.hop*.25*wobble;toy.rotation.y=Math.sin(t*.6)*.07*wobble;bubbles.scale.set(sx,sy,sz);mouth.morphTargetInfluences[0]=surprise;mouth.scale.set(1-surprise*.1,1,sz+q*.1);mouth.position.y=.30*(1-sy);
+ for(const group of Object.values(accessories)){group.position.y=1.04*sy;group.scale.set(1+q*.25,1-q*.35,1);group.rotation.z=(s.eyeX*.16+Math.sin(t*9)*s.hop*.25)*wobble;}
+ eyes.forEach(({eye,pupil,sign},index)=>{eye.position.set(sign*.44*(1+q*.8),.21*sy+surprise*.018,1.02*sz+q*.23);eye.scale.set(1+q*.19+surprise*.055,1+q*.19+surprise*.10,1+q*.19);eye.rotation.z=(s.eyeX*.18+Math.sin(t*12+index)*s.hop*.12)*wobble;const pupilSize=1-surprise*.18;pupil.scale.set(pupilSize,pupilSize,.35);pupil.position.x=(s.eyeX*.19+Math.sin(t*1.4+index)*.015)*wobble;pupil.position.y=(s.eyeY*.18)*wobble;});
+ brows.forEach(({brow,sign})=>{brow.position.set(sign*.44*(1+q*.8),.21*sy+.38+surprise*.12,1.04*sz+q*.23);brow.rotation.z=sign*(.03+surprise*.24);brow.scale.set(1+surprise*.08,1,1);});
+ cheeks.forEach((cheek,i)=>cheek.position.set((i===0?-1:1)*.69*sx,-.14*sy,.92*sz));shadow.position.x=toy.position.x;shadow.scale.set((1+q*.5)*size,(1+q*.3)*size,1);shadow.material.opacity=1-Math.min(s.hop*.7,.5);renderer.render(scene,camera);}
+ host.appendChild(renderer.domElement);window.SquishToy.setRenderer({update});
+} catch(error){console.warn('3D renderer unavailable; keeping interactive canvas preview.',error);window.SquishToy.renderError();}
+
+</script></body></html>
